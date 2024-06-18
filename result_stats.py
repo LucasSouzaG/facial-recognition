@@ -6,42 +6,31 @@ import pytz
 
 
 def buildReport(df):
-    # Passo 1: Preparar os Dados
-
-    # Exemplo de dados
-    # data = {
-    #     'image': ['image 1', 'image 2', 'image 3'],
-    #     'feliz': [1, 0, 1],
-    #     'triste': [0, 1, 0],
-    #     'neutro': [0, 0, 0]
-    # }
-
-    # df = pd.DataFrame(data)
-    # print(df)
-
     # Passo 2: Gerar Gráficos
     # Gráfico de Barras
 
-    # Gráfico de Barras Empilhadas
-    def plot_stacked_bar_chart(df):
-        df.set_index('Image')[['Feliz', 'Triste', 'Neutro','Surpreso','Medo','Nojo','Raiva']].plot(kind='bar', stacked=True)
-        plt.title('Distribuição de Emoções por Imagem')
-        plt.xlabel('Imagem')
-        plt.ylabel('Número de Ocorrências')
-        plt.legend(title='Emoções')
-        plt.tight_layout()
-        plt.savefig('graph_barras.png')
-        # plt.show()
-
-    # Linha do Tempo
-
     # Gráfico de Linhas
     def plot_line_chart(df):
-        df.set_index('Image')[['Feliz', 'Triste', 'Neutro','Surpreso','Medo','Nojo','Raiva']].plot(kind='line', marker='o')
+
+        emotion_sums = df[['Feliz', 'Triste', 'Neutro','Surpreso','Medo','Nojo','Raiva']].sum()
+
+        # Adicionando uma nova linha com os somatórios ao DataFrame
+        sum_row = pd.DataFrame(emotion_sums).T
+        sum_row['Image'] = 'Total'
+        df_extended = pd.concat([df, sum_row], ignore_index=True)
+
+        df_extended.set_index('Image')[['Feliz', 'Triste', 'Neutro','Surpreso','Medo','Nojo','Raiva']].plot(kind='line', marker='o')
         plt.title('Evolução das Emoções ao Longo das Imagens')
         plt.xlabel('Imagem')
         plt.ylabel('Número de Ocorrências')
         plt.legend(title='Emoções')
+        
+        y_min=0
+        y_max=4
+        # Definindo os limites do eixo Y, se fornecidos
+        if y_min is not None and y_max is not None:
+            plt.ylim(y_min, y_max)
+
         plt.tight_layout()
         plt.savefig('graph_linhas.png')
         # plt.show()
@@ -61,7 +50,6 @@ def buildReport(df):
         # plt.show()
 
     # Plotar os gráficos
-    plot_stacked_bar_chart(df)
     plot_line_chart(df)
     plot_pie_chart(df)
 
@@ -78,14 +66,12 @@ def buildReport(df):
     <body>
         <h1>Relatório de Emoções dos Alunos</h1>
         <p><strong>Data:</strong> {{ data_aula }}</p>
-        <p><strong>Nome do Aluno:</strong> {{ Nome_aluno }}</p>
         <p><strong>Professor:</strong> {{ professor }}</p>
         <p><strong>Instituição de Ensino:</strong> {{ Instituicao }}</p>
         <p><strong>Disciplina:</strong> {{ disciplina }}</p>
         
         <h2>Resumo Geral</h2>
         <p><strong>Duração da Aula:</strong> {{ duracao_aula }}</p>
-        <p><strong>Emoção Predominante:</strong> {{ emocao_predominante }}</p>
 
         <h2>Distribuição de Emoções ao Longo da Aula</h2>
         <table border="1">
@@ -117,7 +103,6 @@ def buildReport(df):
         <!-- Imagens dos gráficos podem ser inseridas aqui -->
         <h2>Gráficos</h2>
         
-        <img src="graph_barras.png" alt="Gráfico de Barras">
         <img src="graph_linhas.png" alt="Linha do Tempo">
         <img src="graph_pizza.png" alt="Gráfico de Pizza">
 
@@ -162,9 +147,7 @@ def buildReport(df):
         'professor': 'Prof. Claudionor',
         'disciplina': 'Processamento de Imagens  Visão Computacional',
         'Instituicao': 'Universidade Adventista de São Paulo',
-        'Nome_aluno': 'DEVE SER VARIAVEL',
         'duracao_aula': '60 minutos',
-        'emocao_predominante': 'DEVE SER VARIAVEL DE ACORDO COM A QUANTIADE DE IMAGENS QUE SERÃO PASSADA DO ALUNO',
         'distribuicao_emocoes': df.to_dict(orient='records'),
 
     }
@@ -216,7 +199,4 @@ def dataReport(original_data):
     buildReport(df)
 
 
-if __name__ == '__main__':
-    dados = [{'imagem': 'b09ac60b-2d9c-11ef-b2f8-80bf07906c97.jpg', 'expressao': 'Raiva'}, {'imagem': 'bc9fd905-2d9c-11ef-9252-80bf07906c97.jpg', 'expressao': 'Feliz'}, {'imagem': 'c2c8f9f4-2d9c-11ef-b14e-80bf07906c97.jpg', 'expressao': 'Medo'}]
-    dataReport(dados)
 
